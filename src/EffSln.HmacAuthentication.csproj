@@ -11,6 +11,7 @@
     <Description>HMAC authentication for ASP.NET Core</Description>
     <PackageTags>aspnetcore;authentication;hmac</PackageTags>
     <RepositoryUrl>https://github.com/zacuke/EffSln.HmacAuthentication</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
