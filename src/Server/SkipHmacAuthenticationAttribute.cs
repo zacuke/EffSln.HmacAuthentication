@@ -1,4 +1,4 @@
-namespace EffSln.HmacAuthentication.Shared;
+namespace EffSln.HmacAuthentication.Server;
 /// <summary>
 /// Attribute to skip HMAC authentication for specific controllers or methods.
 /// </summary>

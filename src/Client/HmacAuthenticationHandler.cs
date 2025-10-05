@@ -1,5 +1,4 @@
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using EffSln.HmacAuthentication.Shared;
 
@@ -10,17 +9,17 @@ namespace EffSln.HmacAuthentication.Client;
 /// </summary>
 public class HmacAuthenticationHandler : DelegatingHandler
 {
-    private readonly IConfiguration _config;
+    private readonly HmacAuthClientOptions _options;
     private readonly ILogger<HmacAuthenticationHandler> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HmacAuthenticationHandler"/> class.
     /// </summary>
-    /// <param name="config">The configuration containing API key and secret.</param>
+    /// <param name="options">The HMAC authentication options containing API key and secret.</param>
     /// <param name="logger">The logger for diagnostic information.</param>
-    public HmacAuthenticationHandler(IConfiguration config, ILogger<HmacAuthenticationHandler> logger)
+    public HmacAuthenticationHandler(HmacAuthClientOptions options, ILogger<HmacAuthenticationHandler> logger)
     {
-        _config = config;
+        _options = options;
         _logger = logger;
     }
 
@@ -32,8 +31,8 @@ public class HmacAuthenticationHandler : DelegatingHandler
     /// <returns>The HTTP response message.</returns>
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var apiKey = _config["EffSln:ApiKey"];
-        var secret = _config["EffSln:ApiSecret"];
+        var apiKey = _options.ApiKey;
+        var secret = _options.ApiSecret;
 
         if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(secret))
         {

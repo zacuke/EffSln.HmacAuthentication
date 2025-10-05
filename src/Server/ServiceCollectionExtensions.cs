@@ -13,12 +13,8 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configureOptions">Optional configuration action for HMAC authentication options.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddHmacAuthentication(this IServiceCollection services, Action<HmacAuthenticationOptions>? configureOptions = null)
+    public static IServiceCollection AddHmacAuthentication(this IServiceCollection services)
     {
-        var options = new HmacAuthenticationOptions();
-        configureOptions?.Invoke(options);
-
-        services.AddSingleton(options);
         return services;
     }
 }

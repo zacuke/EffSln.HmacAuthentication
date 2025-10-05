@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using EffSln.HmacAuthentication.Shared;
 namespace EffSln.HmacAuthentication.Server;
 /// <summary>
@@ -10,7 +11,6 @@ namespace EffSln.HmacAuthentication.Server;
 public class HmacAuthenticationMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IConfiguration _configuration;
     private readonly ILogger<HmacAuthenticationMiddleware> _logger;
     private readonly HmacAuthenticationOptions _options;
 
@@ -18,15 +18,13 @@ public class HmacAuthenticationMiddleware
     /// Initializes a new instance of the HmacAuthenticationMiddleware class.
     /// </summary>
     /// <param name="next">The next middleware in the pipeline.</param>
-    /// <param name="configuration">The configuration containing API keys.</param>
     /// <param name="logger">The logger for diagnostic messages.</param>
     /// <param name="options">The HMAC authentication options.</param>
-    public HmacAuthenticationMiddleware(RequestDelegate next, IConfiguration configuration, ILogger<HmacAuthenticationMiddleware> logger, HmacAuthenticationOptions options)
+    public HmacAuthenticationMiddleware(RequestDelegate next, ILogger<HmacAuthenticationMiddleware> logger, IOptions<HmacAuthenticationOptions> options)
     {
         _next = next;
-        _configuration = configuration;
         _logger = logger;
-        _options = options;
+        _options = options.Value;
     }
 
     /// <summary>
@@ -77,8 +75,7 @@ public class HmacAuthenticationMiddleware
             return false;
         }
 
-        var secret = _configuration.GetValue<string>($"ApiKeys:{apiKey}");
-        if (string.IsNullOrEmpty(secret))
+        if (!_options.ApiKeys.TryGetValue(apiKey, out var secret) || string.IsNullOrEmpty(secret))
         {
             _logger.LogWarning("Invalid API key: {ApiKey}", apiKey);
             return false;
@@ -100,7 +97,7 @@ public class HmacAuthenticationMiddleware
             return false;
 
         var timeDifference = DateTime.UtcNow - requestTime.ToUniversalTime();
-        return timeDifference.Duration() <= TimeSpan.FromSeconds(30);
+        return timeDifference.Duration() <= TimeSpan.FromMinutes(5);
     }
 
     private async Task<string> ComputeSignature(HttpContext context, string timestamp, string secret)
