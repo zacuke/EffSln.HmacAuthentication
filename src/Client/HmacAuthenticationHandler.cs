@@ -1,5 +1,5 @@
 using System.Text;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using EffSln.HmacAuthentication.Shared;
 
 namespace EffSln.HmacAuthentication.Client;
@@ -7,21 +7,12 @@ namespace EffSln.HmacAuthentication.Client;
 /// <summary>
 /// Handles HMAC authentication for HTTP requests.
 /// </summary>
-public class HmacAuthenticationHandler : DelegatingHandler
+/// <remarks>
+/// Initializes a new instance of the <see cref="HmacAuthenticationHandler"/> class.
+/// </remarks>
+/// <param name="options">The HMAC authentication options containing API key and secret.</param>
+public class HmacAuthenticationHandler(IOptions<HmacAuthClientOptions> options) : DelegatingHandler
 {
-    private readonly HmacAuthClientOptions _options;
-    private readonly ILogger<HmacAuthenticationHandler> _logger;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="HmacAuthenticationHandler"/> class.
-    /// </summary>
-    /// <param name="options">The HMAC authentication options containing API key and secret.</param>
-    /// <param name="logger">The logger for diagnostic information.</param>
-    public HmacAuthenticationHandler(HmacAuthClientOptions options, ILogger<HmacAuthenticationHandler> logger)
-    {
-        _options = options;
-        _logger = logger;
-    }
 
     /// <summary>
     /// Sends an HTTP request with HMAC authentication headers.
@@ -31,8 +22,8 @@ public class HmacAuthenticationHandler : DelegatingHandler
     /// <returns>The HTTP response message.</returns>
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var apiKey = _options.ApiKey;
-        var secret = _options.ApiSecret;
+        var apiKey = options.Value.ApiKey;
+        var secret = options.Value.ApiSecret;
 
         if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(secret))
         {

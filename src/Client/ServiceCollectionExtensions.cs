@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EffSln.HmacAuthentication.Client;
 
@@ -15,10 +16,15 @@ public static class ServiceCollectionExtensions
     /// <returns>The HTTP client builder for chaining.</returns>
     public static IHttpClientBuilder AddHmacAuthenticationHandler(this IHttpClientBuilder builder, Action<HmacAuthClientOptions>? configureOptions = null)
     {
-        var options = new HmacAuthClientOptions();
-        configureOptions?.Invoke(options);
+        // builder.Services.AddOptions<HmacAuthClientOptions>();
 
-        builder.Services.AddSingleton(options);
+        // if (configureOptions != null)
+        // {
+        //     builder.Services.Configure(configureOptions);
+        // }
+
+        builder.Services.AddTransient<HmacAuthenticationHandler>();
+
         return builder.AddHttpMessageHandler<HmacAuthenticationHandler>();
     }
 }
